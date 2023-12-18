@@ -1,26 +1,43 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
-import { BlockRowWord } from './components/BlockRowWord'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { BlockWordSaved } from './components/BlockWordSaved'
+import { BlockWordCurrent } from './components/BlockWordCurrent'
+import { BlockWordMyster } from './components/BlockWordMyster'
 
 
-const WORDTOFOUND = "TEST"
+// const WORDTOFOUND = "TEST"
 let max_essai = 5
-let pos1, pos2
+const words = [
+  "TEST",
+  "XYLOPHENE",
+  "THERMITHE",
+  "OVALE",
+  "TABLE",
+  "PHYLOSOPHIE"
+]
 
-do {
-  pos1 = Math.floor(Math.random() * WORDTOFOUND.length)
-  pos2 = Math.floor(Math.random() * WORDTOFOUND.length)
+const random = (pos1, pos2, posWordToFound) => {
+  do {
+    pos1 = Math.floor(Math.random() * words[posWordToFound].length)
+    pos2 = Math.floor(Math.random() * words[posWordToFound].length)
 
-} while (pos1 == pos2)
+  } while (pos1 == pos2)
 
-const charToShow = [pos1, pos2].sort()
-
+  return [pos1, pos2].sort()
+}
 
 function App() {
   const [essai, setEssai] = useState(0)
   const [wordTape, setWordTape] = useState("")
   const [wordTapeSave, setWordTapeSave] = useState([])
-  const [gameFinished, setGameFinished] = useState(false)
+  const [pos1, setPos1] = useState(0)
+  const [pos2, setPos2] = useState(0)
+  const [posWordToFound, setPosWordToFound] = useState(0)
+
+  const randomPos = useMemo(() => {
+    return random(pos1, pos2, posWordToFound)
+  }, [pos1, pos2, posWordToFound])
+
 
   const handlekeyUpListener = (e) => {
     const keycode = e.keyCode
@@ -31,23 +48,17 @@ function App() {
     if (keycode != 13) {
       /** different de ctrl shift alt */
       if (keycode != 18 && keycode != 17 && keycode != 16 && keycode != 9) {
-        setWordTape(wordTape + char)
+        setWordTape((wordTape) => wordTape + char)
       }
     } else {
-
-      let motEnregistrer = wordTapeSave.map((word) => {
-        return word
-      })
-      motEnregistrer.push(wordTape)
-      setWordTapeSave(motEnregistrer)
-      setEssai(essai + 1)
+      setWordTapeSave((word) => [...word, wordTape])
+      setEssai((ess) => ess + 1)
       setWordTape("")
 
-      if (WORDTOFOUND === wordTape) {
-        setGameFinished(true)
+      if (words[posWordToFound] === wordTape) {
         setEssai(0)
-        // setWordTape("")
         setWordTapeSave([])
+        setPosWordToFound(Math.floor(Math.random() * words.length))
       }
     }
   }
@@ -58,17 +69,24 @@ function App() {
     return () => {
       window.removeEventListener('keyup', handlekeyUpListener);
     }
-  }, [wordTapeSave, wordTape, gameFinished])
+  }, [wordTapeSave, wordTape])
 
   return (
     <div className="container mt-5" >
-      <BlockRowWord
-        word={WORDTOFOUND}
+      <BlockWordSaved
         max_essai={max_essai}
-        charToShow={charToShow}
-        essai={essai}
-        wordTape={wordTape}
         wordsSaved={wordTapeSave}
+        word={words[posWordToFound]}
+      />
+      <BlockWordCurrent
+        posWordToShow={randomPos}
+        word={words[posWordToFound]}
+        wordTape={wordTape}
+      />
+      <BlockWordMyster
+        max_essai={max_essai}
+        currentPos={essai}
+        word={words[posWordToFound]}
       />
     </div>
   )
