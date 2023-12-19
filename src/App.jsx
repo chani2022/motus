@@ -3,9 +3,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { BlockWordSaved } from './components/BlockWordSaved'
 import { BlockWordCurrent } from './components/BlockWordCurrent'
 import { BlockWordMyster } from './components/BlockWordMyster'
-
+import { Counter } from './components/Counter'
+import { Score } from './components/Score'
+import { CompteurContext } from './context/CompteurContext'
+import { ScoreContext } from './context/ScoreContex'
 
 let max_essai = 5
+const counterInit = 30
+
 const words = [
   "TEST",
   "XYLOPHENE",
@@ -21,17 +26,21 @@ const random = (pos1, pos2, posWordToFound) => {
     pos2 = Math.floor(Math.random() * words[posWordToFound].length)
 
   } while (pos1 == pos2)
-  console.log(pos1, pos2)
+
   return [pos1, pos2].sort()
 }
 
 function App() {
+
   const [essai, setEssai] = useState(0)
   const [wordTape, setWordTape] = useState("")
   const [wordTapeSave, setWordTapeSave] = useState([])
   const [pos1, setPos1] = useState(0)
   const [pos2, setPos2] = useState(0)
   const [posWordToFound, setPosWordToFound] = useState(0)
+  const [counter, setCounter] = useState(counterInit)
+  const [score, setScore] = useState(0)
+
 
   const randomPos = useMemo(() => {
     return random(pos1, pos2, posWordToFound)
@@ -53,19 +62,6 @@ function App() {
           wordToSave = wordToSave.substring(0, words[posWordToFound].length)
         }
         setWordTape((word) => wordToSave)
-        // let motLongue = ""
-        // console.log(wordTape.length, words[posWordToFound].length)
-        // if (wordTape.length > words[posWordToFound].length) {
-        //   // motLongue = wordTape.substring(0, words[posWordToFound].length)
-        //   setWordTape((word) => {
-        //     if (word.length > words[posWordToFound].length) {
-        //       return word.substring(0, words[posWordToFound].length)
-        //     } else {
-        //       word + char
-        //     }
-        //   })
-        // }
-
       }
     } else {
 
@@ -77,6 +73,8 @@ function App() {
         setEssai(0)
         setWordTapeSave([])
         setPosWordToFound(Math.floor(Math.random() * words.length))
+        setCounter(counterInit)
+        setScore((s) => s + 1)
       }
     }
   }
@@ -91,21 +89,45 @@ function App() {
 
   return (
     <div className="container mt-5" >
-      <BlockWordSaved
-        max_essai={max_essai}
-        wordsSaved={wordTapeSave}
-        word={words[posWordToFound]}
-      />
-      <BlockWordCurrent
-        posWordToShow={randomPos}
-        word={words[posWordToFound]}
-        wordTape={wordTape}
-      />
-      <BlockWordMyster
-        max_essai={max_essai}
-        currentPos={essai}
-        word={words[posWordToFound]}
-      />
+      <div className="row">
+
+        <div className="col-2">
+          <CompteurContext.Provider
+            value={[
+              counterInit,
+              counter,
+              setCounter,
+              // words[posWordToFound],
+              words,
+              posWordToFound,
+              setPosWordToFound,
+            ]}>
+            <Counter />
+          </CompteurContext.Provider>
+        </div>
+        <div className="col-8">
+          <BlockWordSaved
+            max_essai={max_essai}
+            wordsSaved={wordTapeSave}
+            word={words[posWordToFound]}
+          />
+          <BlockWordCurrent
+            posWordToShow={randomPos}
+            word={words[posWordToFound]}
+            wordTape={wordTape}
+          />
+          <BlockWordMyster
+            max_essai={max_essai}
+            currentPos={essai}
+            word={words[posWordToFound]}
+          />
+        </div>
+        <div className="col-2">
+          <ScoreContext.Provider value={score}>
+            <Score />
+          </ScoreContext.Provider>
+        </div>
+      </div>
     </div>
   )
 }
