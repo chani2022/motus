@@ -5,7 +5,6 @@ import { BlockWordCurrent } from './components/BlockWordCurrent'
 import { BlockWordMyster } from './components/BlockWordMyster'
 
 
-// const WORDTOFOUND = "TEST"
 let max_essai = 5
 const words = [
   "TEST",
@@ -22,7 +21,7 @@ const random = (pos1, pos2, posWordToFound) => {
     pos2 = Math.floor(Math.random() * words[posWordToFound].length)
 
   } while (pos1 == pos2)
-
+  console.log(pos1, pos2)
   return [pos1, pos2].sort()
 }
 
@@ -36,7 +35,7 @@ function App() {
 
   const randomPos = useMemo(() => {
     return random(pos1, pos2, posWordToFound)
-  }, [pos1, pos2, posWordToFound])
+  }, [posWordToFound])
 
 
   const handlekeyUpListener = (e) => {
@@ -48,9 +47,28 @@ function App() {
     if (keycode != 13) {
       /** different de ctrl shift alt */
       if (keycode != 18 && keycode != 17 && keycode != 16 && keycode != 9) {
-        setWordTape((wordTape) => wordTape + char)
+        let wordToSave = wordTape + char
+
+        if (wordToSave.length > words[posWordToFound].length) {
+          wordToSave = wordToSave.substring(0, words[posWordToFound].length)
+        }
+        setWordTape((word) => wordToSave)
+        // let motLongue = ""
+        // console.log(wordTape.length, words[posWordToFound].length)
+        // if (wordTape.length > words[posWordToFound].length) {
+        //   // motLongue = wordTape.substring(0, words[posWordToFound].length)
+        //   setWordTape((word) => {
+        //     if (word.length > words[posWordToFound].length) {
+        //       return word.substring(0, words[posWordToFound].length)
+        //     } else {
+        //       word + char
+        //     }
+        //   })
+        // }
+
       }
     } else {
+
       setWordTapeSave((word) => [...word, wordTape])
       setEssai((ess) => ess + 1)
       setWordTape("")

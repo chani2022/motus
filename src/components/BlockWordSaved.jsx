@@ -2,12 +2,14 @@ import BlockWord from "./BlockWord"
 import DivRow from "./DivRow"
 
 export function BlockWordSaved({ max_essai, wordsSaved, word }) {
-    console.log(wordsSaved)
     let div = []
 
     if (wordsSaved.length < max_essai) {
         for (let i = 0; i < wordsSaved.length; i++) {
             const mot = wordsSaved[i]
+            // if (mot.lenght > word.length) {
+            //     mot = mot.substr(0, word.length)
+            // }
             let row = []
 
             for (let j = 0; j < mot.length; j++) {
